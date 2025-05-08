@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Usuarios</title>
+</head>
+
+<body>
+    <h1>Lista de usuarios</h1>
+
+    <table border="1" id="tablaUsuarios">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Edad</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>Agregar Usuario</h2>
+    <form id="formAgregar">
+        <input type="text" id="nombre" placeholder="Nombre" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="number" id="edad" placeholder="Edad" required>
+        <button type="submit">Agregar</button>
+    </form>
+
+    <script>
+        const API_URL = 'http://localhost:3000/usuarios';
+
+        async function cargarUsuarios() {
+            const res = await fetch(API_URL);
+            const usuarios = await res.json();
+            const tbody = document.querySelector("#tablaUsuarios tbody");
+            tbody.innerHTML = "";
+            usuarios.forEach(user => {
+                const row = `<tr>
+                        <td>${user.id}</td>
+                        <td>${user.nombre}</td>
+                        <td>${user.email}</td>
+                        <td>${user.edad}</td>
+                        </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        document.getElementById("formAgregar").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById("nombre").value;
+            const email = document.getElementById("email").value;
+            const edad = document.getElementById("edad").value;
+
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nombre, email, edad })
+            });
+
+            if (res.ok) {
+                document.getElementById("formAgregar").reset();
+                cargarUsuarios();
+            } else {
+                const error = await res.json();
+                alert("Error: " + error.error);
+            }
+        });
+
+        cargarUsuarios();
+
+    </script>
+</body>
+
+</html>
